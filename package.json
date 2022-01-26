@@ -1,0 +1,27 @@
+{
+  "name": "paella-media",
+  "version": "1.0.0",
+  "description": "Paella Player 7 for UPV Media",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/polimediaupv/paella-media.git"
+  },
+  "keywords": [
+    "paella",
+    "player",
+    "7",
+    "upv",
+    "media",
+    "asic"
+  ],
+  "author": "Fernando Serrano Carpena <ferserc1@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/polimediaupv/paella-media/issues"
+  },
+  "homepage": "https://github.com/polimediaupv/paella-media#readme"
+}
