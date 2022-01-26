@@ -1,5 +1,5 @@
 {
-    "repositoryUrl": "repository",
+    "repositoryUrl": "/rest/paella",
     "manifestFileName": "data.json",
 
     "defaultLayout": "presenter-presentation",
