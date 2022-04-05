@@ -2,3 +2,15 @@
 .video-container {
     background-color: #686868;
 }
+
+div.image-list img {
+    width: 200px;
+}
+
+img.frame-control-preview {
+    width: 100%;
+}
+
+#player-container {
+    user-select: none;
+}

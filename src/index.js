@@ -1,5 +1,5 @@
 
-import { Paella } from 'paella-core';
+import { Paella, defaultLoadVideoManifestFunction } from 'paella-core';
 import getBasicPluginContext from 'paella-basic-plugins';
 import getSlidePluginContext from 'paella-slide-plugins';
 import getZoomPluginContext from 'paella-zoom-plugin';
@@ -14,7 +14,16 @@ const initParams = {
         getSlidePluginContext(),
         getZoomPluginContext(),
         getUserTrackingPluginContext()
-    ]
+    ],
+
+    async loadVideoManifest(videoManifestUrl, config, player) {
+        const manifest = await defaultLoadVideoManifestFunction(videoManifestUrl, config, player);
+        if (!manifest.metadata?.preview) {
+            const srcStream = manifest.streams.find(stream => stream.content === 'presenter') || manifest.streams[0];
+            manifest.metadata.preview = srcStream.preview;
+        }
+        return manifest; 
+    }
 };
 
 class PaellaPlayerMedia extends Paella {
