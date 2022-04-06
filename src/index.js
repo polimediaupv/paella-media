@@ -17,11 +17,24 @@ const initParams = {
     ],
 
     async loadVideoManifest(videoManifestUrl, config, player) {
+        const authUrl = `/rest/paella/auth/${player.videoId}`;
+        const authResponse = await fetch(authUrl);
+        if (authResponse.ok) {
+            const authData = await authResponse.json();
+            if (authData.permissions?.canRead === false) {
+                throw new Error("You do not have permission to view this video");
+            }
+        }
+        else {
+            throw new Error("Error loading authentication data");
+        }
+
         const manifest = await defaultLoadVideoManifestFunction(videoManifestUrl, config, player);
         if (!manifest.metadata?.preview) {
             const srcStream = manifest.streams.find(stream => stream.content === 'presenter') || manifest.streams[0];
             manifest.metadata.preview = srcStream.preview;
         }
+
 
         return manifest; 
     }

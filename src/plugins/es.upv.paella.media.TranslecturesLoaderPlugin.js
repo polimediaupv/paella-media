@@ -49,9 +49,7 @@ export default class TranslecturesLoaderPlugin extends CaptionsPlugin {
                             end: getTime(p.getAttribute('end')),
                             captions: p.innerText
                         });
-                        console.log(p);
-                        console.log(p.innerText);
-                    })
+                    });
                 }
                 result.push(captionObject);
             }
