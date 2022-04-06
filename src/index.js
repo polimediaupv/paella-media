@@ -9,7 +9,7 @@ import packageData from "../package.json";
 
 const initParams = {
     customPluginContext: [
-//        require.context("./plugins", true, /\.js/),
+        require.context("./plugins", true, /\.js/),
         getBasicPluginContext(),
         getSlidePluginContext(),
         getZoomPluginContext(),
@@ -22,6 +22,7 @@ const initParams = {
             const srcStream = manifest.streams.find(stream => stream.content === 'presenter') || manifest.streams[0];
             manifest.metadata.preview = srcStream.preview;
         }
+
         return manifest; 
     }
 };

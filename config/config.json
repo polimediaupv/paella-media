@@ -191,6 +191,10 @@
             "context": [
                 "userTracking"
             ]
+        },
+
+        "es.upv.paella.media.TranslecturesLoaderPlugin": {
+            "enabled": true
         }
     }
 }
