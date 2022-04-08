@@ -193,8 +193,14 @@
             ]
         },
 
-        "es.upv.paella.media.TranslecturesLoaderPlugin": {
+        "es.upv.paella.media.translecturesLoaderPlugin": {
             "enabled": true
+        },
+
+        "es.upv.paella.findCaptionsPlugin": {
+            "enabled": true,
+            "side": "right",
+            "description": "Search in captions"
         }
     }
 }

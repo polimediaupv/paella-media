@@ -7,6 +7,7 @@ import getUserTrackingPluginContext from 'paella-user-tracking';
 
 import packageData from "../package.json";
 
+
 const initParams = {
     customPluginContext: [
         require.context("./plugins", true, /\.js/),
@@ -54,6 +55,8 @@ class PaellaPlayerMedia extends Paella {
 }
 
 let paella = new PaellaPlayerMedia('player-container', initParams);
+
+document.getElementById("player-container").addEventListener("contextmenu", e => e.preventDefault());
 
 paella.loadManifest()
     .then(() => console.log("done"))
