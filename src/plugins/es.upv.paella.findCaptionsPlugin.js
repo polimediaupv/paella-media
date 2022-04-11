@@ -32,6 +32,40 @@ export default class FindCaptionsPlugin extends PopUpButtonPlugin {
             evt.stopPropagation();
         });
 
+        const browserLanguage = navigator.language.substring(0,2);
+        const isCurrentLanguage = (lang) => {
+            // If there are some captions enabled, compare with this language
+            if (this.player.captionsCanvas._currentCaptions) {
+                return lang === this.player.captionsCanvas._currentCaptions.language;
+            }
+
+            // Otherwise, compare with the browser language
+            return lang === browserLanguage;
+        }
+
+        const showAllCaptions = () => {
+            let captions = null;
+            this.captions.some(lang => {
+                if (isCurrentLanguage(lang.language)) {
+                    captions = lang;
+                }
+            });
+            if (!captions) {
+                captions = this.captions[0];
+            }
+
+            captions && captions.cues.forEach(cue => {
+                const cueElem = createElementWithHtmlText(`<p class="result-item">${cue.startString}: ${cue.captions[0]}</p>`, resultsContainer);
+                cueElem._cue = cue;
+                cueElem.addEventListener('click', async evt => {
+                    const time = evt.target._cue.start;
+                    await this.player.videoContainer.setCurrentTime(time);
+                })
+            })
+        }
+
+        showAllCaptions();
+
         let searchTimer = null;
         input.addEventListener('keyup', (evt) => {
             if (searchTimer) {
@@ -59,8 +93,11 @@ export default class FindCaptionsPlugin extends PopUpButtonPlugin {
                         await this.player.videoContainer.setCurrentTime(time);
                     })
                 }
-                if (Object.keys(results).length === 0) {
+                if (Object.keys(results).length === 0 && input.value !== '') {
                     createElementWithHtmlText(`<p>${this.player.translate("No results found")}</p>`, resultsContainer);
+                }
+                else if (input.value === '') {
+                    showAllCaptions();
                 }
                 searchTimer = null;
             }, 1000);
@@ -68,11 +105,8 @@ export default class FindCaptionsPlugin extends PopUpButtonPlugin {
             evt.stopPropagation();
         });
 
-        const button = createElementWithHtmlText(`<button>${searchText}</button>`, content);
-        button.addEventListener('click', (evt) => {
-            evt.stopPropagation();
-        });
-
+        // Force reload content
+        setTimeout(() => this.refreshContent = true, 10);
         return content;
     }
 

@@ -201,6 +201,12 @@
             "enabled": true,
             "side": "right",
             "description": "Search in captions"
+        },
+
+        "es.upv.paella.translecturesCaptionsPlugin": {
+            "enabled": true,
+            "side": "right",
+            "description": "Enable, disable or edit captions"
         }
     }
 }
