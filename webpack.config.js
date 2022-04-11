@@ -62,14 +62,6 @@ module.exports = function (env) {
                 },
 
                 {
-                    test: /\.css$/,
-                    use:  [
-                        'style-loader',
-                        'css-loader'
-                    ]
-                },
-
-                {
                     test: /\.svg$/i,
                     use: {
                         loader: 'svg-inline-loader'
@@ -77,7 +69,8 @@ module.exports = function (env) {
                 },
                 {
                     test: /\.css$/i,
-                    use: ['style-loader', 'css-loader']
+                    use: ['style-loader', 'css-loader'],
+                    exclude: /(node_modules)/
                 }
             ]
         },

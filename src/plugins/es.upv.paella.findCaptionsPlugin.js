@@ -6,6 +6,8 @@ import {
     Paella
 } from 'paella-core';
 
+import '../css/FindCaptionsPlugin.css';
+
 import searchIcon from '../icons/binoculars.svg';
 
 export default class FindCaptionsPlugin extends PopUpButtonPlugin {
@@ -13,7 +15,8 @@ export default class FindCaptionsPlugin extends PopUpButtonPlugin {
 		return {
 			es: {
 				"Search": "Buscar",
-                "Search in captions": "Buscar en subtítulos"
+                "Search in captions": "Buscar en subtítulos",
+                "No results found": "No se han encontrado resultados"
 			}
 		}
 	}
@@ -49,12 +52,15 @@ export default class FindCaptionsPlugin extends PopUpButtonPlugin {
                 for (const timeString in results) {
                     const res = results[timeString];
                     const text = res.text[currentLanguage] || res.text[Object.keys(res.text)[0]];
-                    const resultElem = createElementWithHtmlText(`<div>${res.cue.startString}: ${text[0]}</div>`, resultsContainer);
+                    const resultElem = createElementWithHtmlText(`<p class="result-item">${res.cue.startString}: ${text[0]}</p>`, resultsContainer);
                     resultElem._cue = res.cue;
                     resultElem.addEventListener('click', async (evt) => {
                         const time = evt.target._cue.start;
                         await this.player.videoContainer.setCurrentTime(time);
                     })
+                }
+                if (Object.keys(results).length === 0) {
+                    createElementWithHtmlText(`<p>${this.player.translate("No results found")}</p>`, resultsContainer);
                 }
                 searchTimer = null;
             }, 1000);
