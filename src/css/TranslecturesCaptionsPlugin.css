@@ -1,0 +1,20 @@
+ 
+
+.translectures-login-popup {
+    --window-width: 200px;
+    --window-height: 150px;
+
+    left: calc(50vw - var(--window-width) / 2);
+    top: calc(50vh - var(--window-height) / 2);
+    width: var(--window-width);
+    height: var(--window-height);
+}
+
+
+@media (min-width: 900px) {
+    .translectures-login-popup {
+        --window-width: 400px;
+        --window-height: 300px;
+    }
+}
+
