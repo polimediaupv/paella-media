@@ -1,7 +1,7 @@
  
 
 .translectures-login-popup {
-    --window-width: 200px;
+    --window-width: 400px;
     --window-height: 150px;
 
     left: calc(50vw - var(--window-width) / 2);
@@ -15,7 +15,7 @@
 
 @media (min-width: 900px) {
     .translectures-login-popup {
-        --window-width: 400px;
+        --window-width: 500px;
         --window-height: 300px;
     }
 }

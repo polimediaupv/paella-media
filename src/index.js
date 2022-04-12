@@ -26,6 +26,12 @@ const initParams = {
             if (authData.permissions?.canRead === false) {
                 throw new Error("You do not have permission to view this video");
             }
+
+            player.authData.login = (redirectUrl) => {
+                const redirect = redirectUrl[0] === '/' ? redirectUrl : '/' + redirectUrl;
+                const authUrl = `/#/auth/login?redirect=${encodeURIComponent(redirect)}`;
+                window.location.href = authUrl;
+            }
         }
         else {
             throw new Error("Error loading authentication data");
@@ -37,6 +43,9 @@ const initParams = {
             manifest.metadata.preview = srcStream.preview;
         }
 
+        if (manifest.metadata.title !== '') {
+            document.title = manifest.metadata.title;
+        }
 
         return manifest; 
     }
