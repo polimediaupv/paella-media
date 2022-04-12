@@ -22,6 +22,7 @@ const initParams = {
         const authResponse = await fetch(authUrl);
         if (authResponse.ok) {
             const authData = await authResponse.json();
+            player.authData = authData;
             if (authData.permissions?.canRead === false) {
                 throw new Error("You do not have permission to view this video");
             }

@@ -35,8 +35,8 @@ export default class FindCaptionsPlugin extends PopUpButtonPlugin {
         const browserLanguage = navigator.language.substring(0,2);
         const isCurrentLanguage = (lang) => {
             // If there are some captions enabled, compare with this language
-            if (this.player.captionsCanvas._currentCaptions) {
-                return lang === this.player.captionsCanvas._currentCaptions.language;
+            if (this.player.captionsCanvas.currentCaptions) {
+                return lang === this.player.captionsCanvas.currentCaptions.language;
             }
 
             // Otherwise, compare with the browser language

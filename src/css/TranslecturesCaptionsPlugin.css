@@ -8,6 +8,8 @@
     top: calc(50vh - var(--window-height) / 2);
     width: var(--window-width);
     height: var(--window-height);
+
+    font-family: Arial, Helvetica, sans-serif;
 }
 
 

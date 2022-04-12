@@ -18,7 +18,10 @@ export default class TranslecturesCaptionsPlugin extends MenuButtonPlugin {
             es: {
                 "Enable, disable or edit captions": "Activar, desactivar o editar subtítulos",
                 "Disabled": "Desactivados",
-                "Edit": "Editar"
+                "Edit": "Editar",
+                "you have selected to edit the transcripts, but you are not logged in.": "Has seleccionado editar las transcripciones, pero no estás identificado!",
+                "edit transcripts anonymously": "Editar las transcripciones de forma anónima",
+                "log in and edit transcripts": "Identificarse y editar las transcripciones"
             }
         }
     }
@@ -27,12 +30,12 @@ export default class TranslecturesCaptionsPlugin extends MenuButtonPlugin {
         const result = [
             {
                 id: -1,
-                title: "Disabled",
+                title: this.player.translate("Disabled"),
                 index: -1
             },
             {
                 id: -2,
-                title: "Edit",
+                title: this.player.translate("Edit"),
                 index: -2
             }
         ];
@@ -53,16 +56,48 @@ export default class TranslecturesCaptionsPlugin extends MenuButtonPlugin {
             this._captionsCanvas.disableCaptions();
         }
         else if (itemData.index === -2) {
-            // TODO: Edit
-            const popUp = new PopUp(this.player, document.body, null, null, false);
-            const popUpContent = createElementWithHtmlText(`<div>Hello</div>`);
-            popUp.setContent(popUpContent);
-            popUp.contentElement.classList.add("translectures-login-popup");
-            popUp.show();
+            if (this.player.authData.permissions.isAnonymous) {
+                // TODO: Edit
+                const popUp = new PopUp(this.player, document.body, null, null, false);
+                const title = this.player.translate('you have selected to edit the transcripts, but you are not logged in.');
+                const editAnonymous = this.player.translate('edit transcripts anonymously');
+                const loginAndEdit = this.player.translate('log in and edit transcripts');
+                const popUpContent = createElementWithHtmlText(`
+                    <div>
+                        <h1>${title}</h1>
+                    </div>`);
+                const editAnonymousButton = createElementWithHtmlText(`<button>${editAnonymous}</button>`, popUpContent);
+                editAnonymousButton.addEventListener('click', evt => {
+                    this.doEdit();
+                    popUp.hide();
+                    evt.stopPropagation();
+                });
+                const loginAndEditButton = createElementWithHtmlText(`<button>${loginAndEdit}</button>`, popUpContent);
+                loginAndEditButton.addEventListener('click', evt => {
+                    this.doLoginAndEdit();
+                    popUp.hide();
+                    evt.stopPropagation();
+                });
+                popUp.setContent(popUpContent);
+                popUp.contentElement.classList.add("translectures-login-popup");
+                popUp.show();
+            }
+            else {
+                this.doLoginAndEdit();
+                
+            }
         }
         else {
             this._captionsCanvas.enableCaptions({ index: itemData.index });
         }
+    }
+
+    doEdit() {
+        alert("Edit");
+    }
+
+    doLoginAndEdit() {
+        alert("Login and edit");
     }
 
     async load() {
