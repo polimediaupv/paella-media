@@ -25,7 +25,7 @@ export default class FindCaptionsPlugin extends PopUpButtonPlugin {
         const placeholderText = this.player.translate("Search");
         const content = createElementWithHtmlText(`<div class="captions-search-container"></div>`);
 
-        const resultsContainer = createElementWithHtmlText('<div class="search-results"></div>', content);
+        this._resultsContainer = createElementWithHtmlText('<div class="search-results"></div>', content);
 
         const input = createElementWithHtmlText(`<input type="text" placeholder="${placeholderText}"/>`, content);
         input.addEventListener('click', (evt) => {
@@ -56,7 +56,7 @@ export default class FindCaptionsPlugin extends PopUpButtonPlugin {
 
             this._cueElements = [];
             captions && captions.cues.forEach(cue => {
-                const cueElem = createElementWithHtmlText(`<p class="result-item">${cue.startString}: ${cue.captions[0]}</p>`, resultsContainer);
+                const cueElem = createElementWithHtmlText(`<p class="result-item">${cue.startString}: ${cue.captions[0]}</p>`, this._resultsContainer);
                 cueElem._cue = cue;
                 cueElem.addEventListener('click', async evt => {
                     const time = evt.target._cue.start;
@@ -74,7 +74,7 @@ export default class FindCaptionsPlugin extends PopUpButtonPlugin {
             if (searchTimer) {
                 clearTimeout(searchTimer);
             }
-            resultsContainer.innerHTML = "";
+            this._resultsContainer.innerHTML = "";
             const currentLanguage = this.player.getLanguage();
             searchTimer = setTimeout(() => {
                 const results = {};
@@ -91,7 +91,7 @@ export default class FindCaptionsPlugin extends PopUpButtonPlugin {
                 for (const timeString in results) {
                     const res = results[timeString];
                     const text = res.text[currentLanguage] || res.text[Object.keys(res.text)[0]];
-                    const resultElem = createElementWithHtmlText(`<p class="result-item">${res.cue.startString}: ${text[0]}</p>`, resultsContainer);
+                    const resultElem = createElementWithHtmlText(`<p class="result-item">${res.cue.startString}: ${text[0]}</p>`, this._resultsContainer);
                     resultElem._cue = res.cue;
                     resultElem.addEventListener('click', async (evt) => {
                         const time = evt.target._cue.start;
@@ -101,7 +101,7 @@ export default class FindCaptionsPlugin extends PopUpButtonPlugin {
                     this._cueElements.push(resultElem);
                 }
                 if (Object.keys(results).length === 0 && input.value !== '') {
-                    createElementWithHtmlText(`<p>${this.player.translate("No results found")}</p>`, resultsContainer);
+                    createElementWithHtmlText(`<p>${this.player.translate("No results found")}</p>`, this._resultsContainer);
                 }
                 else if (input.value === '') {
                     showAllCaptions();
@@ -112,7 +112,6 @@ export default class FindCaptionsPlugin extends PopUpButtonPlugin {
             evt.stopPropagation();
         });
 
-        window.resultsContainer = resultsContainer;
         // If there is no text in search field, scroll to current caption on time update
         if (!this._timeupdateEvent) {
             this._timeupdateEvent = async evt => {
@@ -120,9 +119,9 @@ export default class FindCaptionsPlugin extends PopUpButtonPlugin {
                     this._cueElements.forEach(elem => {
                         if (elem._cue.start<=evt.currentTime && elem._cue.end>=evt.currentTime) {
                             elem.classList.add('current');
-                            const elemPosTop = elem.offsetTop - resultsContainer.scrollTop;
-                            if (elemPosTop<0 || elemPosTop>resultsContainer.clientHeight) {
-                                resultsContainer.scrollTo({ top: elem.offsetTop - 20 });
+                            const elemPosTop = elem.offsetTop - this._resultsContainer.scrollTop;
+                            if (elemPosTop<0 || elemPosTop>this._resultsContainer.clientHeight) {
+                                this._resultsContainer.scrollTo({ top: elem.offsetTop - 20 });
                             }
                         }
                         else {
