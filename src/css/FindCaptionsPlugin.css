@@ -13,3 +13,8 @@ div.search-results p {
 div.search-results p.result-item {
     cursor: pointer;
 }
+
+
+div.captions-search-container input {
+    width: 98%;
+}

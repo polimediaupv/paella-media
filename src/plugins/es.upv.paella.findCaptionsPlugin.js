@@ -23,7 +23,7 @@ export default class FindCaptionsPlugin extends PopUpButtonPlugin {
 
     async getContent() {
         const searchText = this.player.translate("Search");
-        const content = createElementWithHtmlText(`<div></div>`);
+        const content = createElementWithHtmlText(`<div class="captions-search-container"></div>`);
 
         const resultsContainer = createElementWithHtmlText('<div class="search-results"></div>', content);
 
