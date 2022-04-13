@@ -1,0 +1,31 @@
+
+div.video-title h1 {
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 15px 10px 15px 10px;
+    font-size: 20px;
+}
+
+@media (max-width: 600px) {
+    div.video-title h1 {
+        font-size: 12px;
+    }
+}
+
+@media (min-width: 601px) and (max-width: 800px) {
+    div.video-title h1 {
+        font-size: 14px;
+    }
+}
+
+@media (min-width: 801px) and (max-width: 1000px) {
+    div.video-title h1 {
+        font-size: 16px;
+    }
+}
+
+@media (min-width: 1001px) and (max-width: 1300px) {
+    div.video-title h1 {
+        font-size: 18px;
+    }
+}

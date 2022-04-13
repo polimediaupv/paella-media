@@ -143,7 +143,7 @@
         },
 
         "es.upv.paella.captionsSelectorPlugin": {
-            "enabled": true,
+            "enabled": false,
             "side": "right",
             "parentContainer": "videoContainer"
         },
@@ -207,6 +207,10 @@
             "enabled": true,
             "side": "right",
             "description": "Enable, disable or edit captions"
+        },
+
+        "es.upv.paella.videoTitlePlugin": {
+            "enabled": true
         }
     }
 }

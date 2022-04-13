@@ -42,10 +42,7 @@ const initParams = {
             const srcStream = manifest.streams.find(stream => stream.content === 'presenter') || manifest.streams[0];
             manifest.metadata.preview = srcStream.preview;
         }
-
-        if (manifest.metadata.title !== '') {
-            document.title = manifest.metadata.title;
-        }
+        
 
         return manifest; 
     }
