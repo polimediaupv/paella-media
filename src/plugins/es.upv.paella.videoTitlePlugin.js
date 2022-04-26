@@ -1,6 +1,6 @@
 import { Events, EventLogPlugin, createElementWithHtmlText } from 'paella-core';
 
-import '../css/VideoTitlePlutin.css';
+import '../css/VideoTitlePlugin.css';
 
 export default class VideoTitlePlugin extends EventLogPlugin {
     get events() {
