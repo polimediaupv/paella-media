@@ -34,7 +34,8 @@ export default class VideoTitlePlugin extends EventLogPlugin {
             const videoTitle = this.player.videoManifest.metadata.title;
             this._titleContainer = createElementWithHtmlText(`<div class="video-title"><h1>${videoTitle}</h1></div>`);
             const rect = this.player.videoContainer.getVideoRect();
-            this.player.videoContainer.appendChild(this._titleContainer, { x: 0, y: 0, width: rect.width, height: 40 });
+            const y = this.player.videoManifest.streams.length===1 ? 0 : 40;
+            this.player.videoContainer.appendChild(this._titleContainer, { x: 0, y, width: rect.width, height: 40 });
         }
     }
 
