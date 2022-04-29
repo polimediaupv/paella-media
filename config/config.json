@@ -173,11 +173,11 @@
 
         "es.upv.paella.userEventTracker": {
             "enabled": true,
-            "context_": "userTracking"
+            "context": "userTracking"
         },
 
         "es.upv.paella.debug.userTrackingDataPlugin": {
-            "enabled": true,
+            "enabled": false,
             "context": [
                 "userTracking"
             ]
@@ -211,6 +211,13 @@
 
         "es.upv.paella.videoTitlePlugin": {
             "enabled": true
+        },
+
+        "es.upv.paella.media.userTrackingDataPlugin": {
+            "enabled": true,
+            "context": [
+                "userTracking"
+            ]
         }
     }
 }
