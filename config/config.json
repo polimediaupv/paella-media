@@ -60,6 +60,11 @@
         },
 
         "es.upv.paella.mp4VideoFormat": {
+            "enabled": false,
+            "order": 1
+        },
+
+        "es.upv.paella.media.mp4VideoFormat": {
             "enabled": true,
             "order": 1
         },

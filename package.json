@@ -40,7 +40,7 @@
     "webpack-dev-server": "^4.7.3"
   },
   "dependencies": {
-    "paella-core": "^1.0.46",
+    "paella-core": "^1.0.47",
     "paella-basic-plugins": "^1.0.14",
     "paella-slide-plugins": "^1.0.10",
     "paella-user-tracking": "^1.0.12",
