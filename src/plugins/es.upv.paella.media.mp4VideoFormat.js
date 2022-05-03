@@ -187,17 +187,14 @@ export class Mp4MediaVideo extends Video {
 
         const currentTime = this.video.currentTime;
         const paused = this.video.paused;
-        await this.video.pause();
+        await this.player.pause();
 
         this.clearStreamData();
         await this.loadStreamData(this._streamData);
 
         this.video.currentTime = currentTime;
-        if (paused) {
-            await this.video.pause();
-        }
-        else {
-            await this.video.play();
+        if (!paused) {
+            await this.player.play();
         }
     }
 

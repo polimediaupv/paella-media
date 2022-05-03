@@ -155,8 +155,7 @@
 
         "es.upv.paella.qualitySelector": {
             "enabled": true,
-            "side": "right",
-            "parentContainer": "videoContainer"
+            "side": "right"
         },
 
         "es.upv.paella.audioSelector": {
