@@ -229,6 +229,10 @@
             "context": [
                 "quiz"
             ]
+        },
+
+        "es.upv.paella.media.quizEventPlugin": {
+            "enabled": true
         }
     }
 }
