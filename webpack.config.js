@@ -35,7 +35,8 @@ module.exports = function (env) {
                     }
                 },
                 '/**': proxyOpts,
-                '/index.html': proxyOpts
+                '/index.html': proxyOpts,
+                '/rest/plugins/user-administrator/video/**': proxyOpts
                 //'/rest/paella/auth/**': proxyOpts,
                 //'/rest/plugins/**': proxyOpts,
                 //'/rest/paella/**': proxyOpts

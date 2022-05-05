@@ -222,6 +222,13 @@
             "context": [
                 "userTracking"
             ]
+        },
+
+        "es.upv.paella.media.quizDataPlugin": {
+            "enabled": true,
+            "context": [
+                "quiz"
+            ]
         }
     }
 }
