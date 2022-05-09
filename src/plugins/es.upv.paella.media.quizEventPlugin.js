@@ -10,7 +10,8 @@ export default class QuizEventPlugin extends EventLogPlugin {
         return [
             Events.PLAYER_LOADED,
             Events.TIMEUPDATE,
-            Events.PLAY
+            Events.PLAY,
+            Events.SEEK
         ];
     }
 
@@ -26,6 +27,15 @@ export default class QuizEventPlugin extends EventLogPlugin {
                 await this.player.pause();
             }
         }
+        else if (event === Events.SEEK) {
+            if (!this._playAllowed && !this._seeking) {
+                this._seeking = true;
+                await this.player.videoContainer.setCurrentTime(this._currentTime);
+            }
+            else {
+                this._seeking = false;
+            }
+        }
     }
 
     async timeUpdate(time) {
@@ -35,6 +45,7 @@ export default class QuizEventPlugin extends EventLogPlugin {
             console.log(question);
             await this.player.pause();
             this._playAllowed = false;
+            this._currentTime = await this.player.videoContainer.currentTime();
         }
     }
 }
