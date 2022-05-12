@@ -10,3 +10,11 @@
     height: 100%;
     pointer-events: all;
 }
+
+.quiz-question-response.wrong-answer {
+    color: red;
+}
+
+.quiz-question-response.correct-answer {
+    color: green;
+}

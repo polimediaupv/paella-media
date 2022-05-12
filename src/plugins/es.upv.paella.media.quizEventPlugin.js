@@ -12,11 +12,26 @@ function getQuestionElement(question) {
             const id = `choice_${i}`;
             createElementWithHtmlText(`
                 <div>
-                    <input type="radio" id="${id}" name="choiceQuestion"/>
+                    <input type="radio" id="${id}" name="quizAnswers"/>
                     <label for="${id}">${response}</label>
+                    <span class="quiz-question-response" id="${id}_response"></span>
                 </div>
             `, elem);
-        })
+        });
+    case 'multiple-choice-question':
+        elem = createElementWithHtmlText(`<div></div>`);
+        createElementWithHtmlText(`${question.question}`,elem);
+        question.responses.forEach((response,i) => {
+            const id = `check_${i}`;
+            createElementWithHtmlText(`
+                <div>
+                    <input type="checkbox" id="${id}" name="quizAnswer${id}"/>
+                    <label for="${id}">${response}</label>
+                    <span class="quiz-question-response" id="${id}_response"></span>
+                </div>
+            `, elem);
+        });
+        break;
     }
     const buttons = createElementWithHtmlText(`
         <div>
@@ -26,7 +41,51 @@ function getQuestionElement(question) {
     const nextButton = buttons.getElementsByClassName('quiz-next-button')[0];
     const okButton = buttons.getElementsByClassName('ok-button')[0];
     okButton.addEventListener('click', evt => {
-        alert("Validate");
+        const results = question.answers.map((answer,i) => {
+            switch (question.type) {
+            case 'choice-question': {
+                const element = document.getElementById(`choice_${i}`);
+                const checked = element.checked;
+                element.setAttribute('disabled','disabled');
+                return {
+                    element,
+                    hintElement: document.getElementById(`choice_${i}_response`),
+                    answer: answer,
+                    selection: checked,
+                    response: question.feedbacks[i],
+                    correct: answer === checked
+                }
+            }
+            case 'multiple-choice-question': {
+                const element = document.getElementById(`check_${i}`);
+                const checked = element.checked;
+                element.setAttribute('disabled','disabled');
+                return {
+                    element,
+                    hintElement: document.getElementById(`check_${i}_response`),
+                    answer: answer,
+                    selection: checked,
+                    response: question.feedbacks[i],
+                    correct: answer === checked
+                }
+            }
+            }
+        });
+
+        const finalResult = results
+            .map(r => {
+                if (r.correct) {
+                    r.hintElement.classList.add("correct-answer");
+                }
+                else {
+                    r.hintElement.classList.add("wrong-answer");
+                }
+                r.hintElement.innerHTML = r.response;
+                return r.correct;
+            })
+            .some(r => r === false);
+
+        console.log(results);
         okButton.style.display = "none";
         nextButton.style.display = "";
     });
@@ -103,11 +162,12 @@ export default class QuizEventPlugin extends EventLogPlugin {
 
     hideQuestion() {
         if (this._questionModal) {
-            this._questionModal.hide();
+            this._questionModal.destroy();
             this._questionModal = null;
             this._playAllowed = true;
             this._skipTime = Math.round(this._currentTime);
             this.player.play();
+
         }
     }
 
