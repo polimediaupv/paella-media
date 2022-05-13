@@ -3,11 +3,10 @@ import { Events, EventLogPlugin, PopUp, createElementWithHtmlText } from 'paella
 import '../css/QuizEventPlugin.css';
 
 function getQuestionElement(question) {
-    let elem = null;
+    const elem = createElementWithHtmlText(`<div></div>`);
+    createElementWithHtmlText(`${question.question}`,elem);
     switch (question.type) {
     case 'choice-question':
-        elem = createElementWithHtmlText(`<div></div>`);
-        createElementWithHtmlText(`${question.question}`,elem);
         question.responses.forEach((response,i) => {
             const id = `choice_${i}`;
             createElementWithHtmlText(`
@@ -18,9 +17,8 @@ function getQuestionElement(question) {
                 </div>
             `, elem);
         });
+        break;
     case 'multiple-choice-question':
-        elem = createElementWithHtmlText(`<div></div>`);
-        createElementWithHtmlText(`${question.question}`,elem);
         question.responses.forEach((response,i) => {
             const id = `check_${i}`;
             createElementWithHtmlText(`
@@ -32,6 +30,19 @@ function getQuestionElement(question) {
             `, elem);
         });
         break;
+    case 'open-question':
+        createElementWithHtmlText(`
+            <div>
+                <textarea id="quizPluginAnswerTextResult"></textarea>
+            </div>
+        `, elem);
+        break;
+    case 'likert-question':
+        // TODO: implement this
+        break;
+    case 'message':
+        // TODO: implement this
+        break;
     }
     const buttons = createElementWithHtmlText(`
         <div>
@@ -41,7 +52,7 @@ function getQuestionElement(question) {
     const nextButton = buttons.getElementsByClassName('quiz-next-button')[0];
     const okButton = buttons.getElementsByClassName('ok-button')[0];
     okButton.addEventListener('click', evt => {
-        const results = question.answers.map((answer,i) => {
+        const results = question.answer && question.answers.map((answer,i) => {
             switch (question.type) {
             case 'choice-question': {
                 const element = document.getElementById(`choice_${i}`);
@@ -70,22 +81,46 @@ function getQuestionElement(question) {
                 }
             }
             }
-        });
+        }) || null;
 
-        const finalResult = results
-            .map(r => {
-                if (r.correct) {
-                    r.hintElement.classList.add("correct-answer");
-                }
-                else {
-                    r.hintElement.classList.add("wrong-answer");
-                }
-                r.hintElement.innerHTML = r.response;
-                return r.correct;
-            })
-            .some(r => r === false);
+        if (results) {
+            // choice or multi choice
+            const finalResult = results
+                .map(r => {
+                    if (r.correct) {
+                        r.hintElement.classList.add("correct-answer");
+                    }
+                    else {
+                        r.hintElement.classList.add("wrong-answer");
+                    }
+                    r.hintElement.innerHTML = r.response;
+                    return r.correct;
+                })
+                .some(r => r === false);
 
-        console.log(results);
+            console.log(results);
+            // TODO: What may I do whit the results and finalResult?
+            console.log(finalResult);
+        }
+        else {
+
+            // Other types
+            switch (question.type) {
+                case 'open-question': {
+                    const textElem = document.getElementById('quizPluginAnswerTextResult');
+                    console.log(textElem.value);
+                    // TODO: What may I do with the answer?
+                }
+                case 'likert-question': {
+                    // TODO: implement this
+                }
+                case 'message': {
+                    // TODO: implement this
+                }
+            }
+        }
+
+
         okButton.style.display = "none";
         nextButton.style.display = "";
     });
