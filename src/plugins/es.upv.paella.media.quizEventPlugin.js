@@ -2,7 +2,7 @@ import { Events, EventLogPlugin, PopUp, createElementWithHtmlText } from 'paella
 
 import '../css/QuizEventPlugin.css';
 
-function getQuestionElement(question) {
+function getQuestionElement(question,player) {
     const elem = createElementWithHtmlText(`<div></div>`);
     createElementWithHtmlText(`${question.question}`,elem);
     switch (question.type) {
@@ -38,7 +38,15 @@ function getQuestionElement(question) {
         `, elem);
         break;
     case 'likert-question':
-        // TODO: implement this
+        createElementWithHtmlText(`
+            <div class="likert-question-group">
+                ${[0,1,2,3,4,5].map(index => `
+                    <div class="liker-question">
+                        <input type="radio" name="likerAnswer" id="liker-answer-${index}"><label for="liker-answer-${index}">${player.translate('liker_answer_' + index)}</input>
+                    </div>
+                `).join("\n")}
+            </div>
+        `, elem);
         break;
     case 'message':
         // TODO: implement this
@@ -46,13 +54,19 @@ function getQuestionElement(question) {
     }
     const buttons = createElementWithHtmlText(`
         <div>
-            <button class="ok-button">Validate</button>
-            <button class="quiz-next-button" style="display: none;">Next</button>
+            <div class="confirmation-container"></div>
+            <button class="ok-button">${player.translate("Validate")}</button>
+            <button class="quiz-next-button">${player.translate("Next")}</button>
         </div>`, elem);
     const nextButton = buttons.getElementsByClassName('quiz-next-button')[0];
     const okButton = buttons.getElementsByClassName('ok-button')[0];
+    const confirmationContainer = buttons.getElementsByClassName('confirmation-container')[0];
+
+    okButton.style.display = question.type === 'message' ? "none" : "";
+    nextButton.style.display = question.type === 'message' ? "" : "none";
+
     okButton.addEventListener('click', evt => {
-        const results = question.answer && question.answers.map((answer,i) => {
+        const results = question.answers && question.answers.map((answer,i) => {
             switch (question.type) {
             case 'choice-question': {
                 const element = document.getElementById(`choice_${i}`);
@@ -115,19 +129,20 @@ function getQuestionElement(question) {
                     // TODO: implement this
                 }
                 case 'message': {
-                    // TODO: implement this
+                    // Not applicable
                 }
             }
         }
 
 
+        confirmationContainer.innerHTML = player.translate("Response sent");
         okButton.style.display = "none";
         nextButton.style.display = "";
     });
     return elem;
 }
 
-function getQuestionContainer(question, doneCallback) {
+function getQuestionContainer(question, doneCallback, player) {
     const questionContainer = createElementWithHtmlText(`
         <div class="question-container">
         </div>
@@ -137,7 +152,7 @@ function getQuestionContainer(question, doneCallback) {
     });
 
     const quizzes = question.quizzes.map(q => {
-        const elem = getQuestionElement(q);
+        const elem = getQuestionElement(q, player);
 
         const nextButton = elem.getElementsByClassName('quiz-next-button')[0];
         nextButton.addEventListener('click', evt => {
@@ -170,6 +185,28 @@ export default class QuizEventPlugin extends EventLogPlugin {
     async load() {
         this._quiz = null;
         this._playAllowed = true;
+        this.player.addDictionary("en", {
+            liker_answer_0: "Strongly agree",
+            liker_answer_1: "Agree",
+            liker_answer_2: "Undecided",
+            liker_answer_3: "Disagree",
+            liker_answer_4: "Strongly disagree",
+            liker_answer_5: "Not applicable",
+            Validate: "Validate",
+            Next: "Next",
+            "Response sent": "Response sent"
+        });
+        this.player.addDictionary("es", {
+            liker_answer_0: "Muy de acuerdo",
+            liker_answer_1: "De acuerdo",
+            liker_answer_2: "Indeciso",
+            liker_answer_3: "En desacuerdo",
+            liker_answer_4: "Muy en desacuerdo",
+            liker_answer_5: "No aplicable",
+            Validate: "Validar",
+            Next: "Siguiente",
+            "Response sent": "Respuesta enviada"
+        });
     }
 
     get events() {
@@ -189,7 +226,7 @@ export default class QuizEventPlugin extends EventLogPlugin {
         this._questionModal = new PopUp(this.player, document.body, null, null, true);
         const questionContainer = getQuestionContainer(question, () => {
             this.hideQuestion();
-        });
+        }, this.player);
         this._questionModal.setContent(questionContainer);
         this._questionModal.contentElement.classList.add('question-modal');
         this._questionModal.show();
