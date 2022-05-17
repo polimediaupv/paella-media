@@ -11,10 +11,10 @@
     pointer-events: all;
 }
 
-.quiz-question-response.wrong-answer {
+.wrong-answer {
     color: red;
 }
 
-.quiz-question-response.correct-answer {
+.correct-answer {
     color: green;
 }

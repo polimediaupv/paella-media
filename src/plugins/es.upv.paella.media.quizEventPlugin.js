@@ -2,7 +2,39 @@ import { Events, EventLogPlugin, PopUp, createElementWithHtmlText } from 'paella
 
 import '../css/QuizEventPlugin.css';
 
-function getQuestionElement(question,player) {
+/**
+ * PUT /rest/plugins/user-administrator/quiz/${id}/addResponse?preview=true
+ * 
+ *  choice-question  
+ *          questionId (question Id)
+ *          questionnaire (quiz id)
+ *          response (response index, 0..n) 
+ * 
+ *  multi-choice-question  
+ *          questionId (question Id)
+ *          questionnaire (quiz id)
+ *          response array (response index, 0..n) 
+ *              Examples: first and secon options => [0, 1]
+ *                        first and third options => [0, 2]
+ *                        second option => [1]
+ *   
+ *  open-question  
+ *          questionId (question Id)
+ *          questionnaire (quiz id)
+ *          response response string
+ * 
+ *  likert-question  
+ *          questionId (question Id)
+ *          questionnaire (quiz id)
+ *          response (response index, 0..n)  
+ * 
+ *  message
+ *          questionId (question Id)
+ *          questionnaire (quiz id)
+ *          response (null)
+ */
+
+function getQuestionElement(question,player,nextCallback) {
     const elem = createElementWithHtmlText(`<div></div>`);
     createElementWithHtmlText(`${question.question}`,elem);
     switch (question.type) {
@@ -56,14 +88,11 @@ function getQuestionElement(question,player) {
         <div>
             <div class="confirmation-container"></div>
             <button class="ok-button">${player.translate("Validate")}</button>
-            <button class="quiz-next-button">${player.translate("Next")}</button>
+            <button class="quiz-next-button" style="display: none">${player.translate("Next")}</button>
         </div>`, elem);
     const nextButton = buttons.getElementsByClassName('quiz-next-button')[0];
     const okButton = buttons.getElementsByClassName('ok-button')[0];
     const confirmationContainer = buttons.getElementsByClassName('confirmation-container')[0];
-
-    okButton.style.display = question.type === 'message' ? "none" : "";
-    nextButton.style.display = question.type === 'message' ? "" : "none";
 
     okButton.addEventListener('click', evt => {
         const results = question.answers && question.answers.map((answer,i) => {
@@ -99,6 +128,7 @@ function getQuestionElement(question,player) {
 
         if (results) {
             // choice or multi choice
+            let totalFailed = 0;
             const finalResult = results
                 .map(r => {
                     if (r.correct) {
@@ -110,11 +140,20 @@ function getQuestionElement(question,player) {
                     r.hintElement.innerHTML = r.response;
                     return r.correct;
                 })
-                .some(r => r === false);
+                .every(r => {
+                    if (r === true) {
+                        return true;
+                    }
+                    else {
+                        ++totalFailed;
+                        return false;
+                    }
+                });
 
-            console.log(results);
-            // TODO: What may I do whit the results and finalResult?
-            console.log(finalResult);
+            confirmationContainer.innerHTML = finalResult ? player.translate("Correct!") : player.translate("Incorrect");
+            confirmationContainer.classList.add(finalResult ? "correct-answer" : "wrong-answer");
+
+            // TODO: send response
         }
         else {
 
@@ -129,15 +168,20 @@ function getQuestionElement(question,player) {
                     // TODO: implement this
                 }
                 case 'message': {
-                    // Not applicable
+                    // TODO: send response
                 }
             }
         }
 
 
-        confirmationContainer.innerHTML = player.translate("Response sent");
+        
         okButton.style.display = "none";
         nextButton.style.display = "";
+
+        // Si no se requiere informar de nada al usuario, pasamos a la siguiente pregunta.
+        if (/(liker|message|open)/.test(question.type)) {
+            nextCallback();
+        }
     });
     return elem;
 }
@@ -152,7 +196,7 @@ function getQuestionContainer(question, doneCallback, player) {
     });
 
     const quizzes = question.quizzes.map(q => {
-        const elem = getQuestionElement(q, player);
+        const elem = getQuestionElement(q, player, () => questionContainer._data.nextQuestion());
 
         const nextButton = elem.getElementsByClassName('quiz-next-button')[0];
         nextButton.addEventListener('click', evt => {
@@ -194,7 +238,9 @@ export default class QuizEventPlugin extends EventLogPlugin {
             liker_answer_5: "Not applicable",
             Validate: "Validate",
             Next: "Next",
-            "Response sent": "Response sent"
+            "Response sent": "Response sent",
+            "Correct!": "Correct!",
+            "Incorrect": "You have failed this question"
         });
         this.player.addDictionary("es", {
             liker_answer_0: "Muy de acuerdo",
@@ -205,7 +251,9 @@ export default class QuizEventPlugin extends EventLogPlugin {
             liker_answer_5: "No aplicable",
             Validate: "Validar",
             Next: "Siguiente",
-            "Response sent": "Respuesta enviada"
+            "Response sent": "Respuesta enviada",
+            "Correct!": "Correcto!",
+            "Incorrect": "Has fallado esta pregunta"
         });
     }
 
