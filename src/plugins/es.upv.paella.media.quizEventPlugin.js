@@ -37,6 +37,15 @@ import '../css/QuizEventPlugin.css';
 function getQuestionElement(question,player,nextCallback) {
     const elem = createElementWithHtmlText(`<div></div>`);
     createElementWithHtmlText(`${question.question}`,elem);
+    const buttons = createElementWithHtmlText(`
+    <div>
+        <div class="confirmation-container"></div>
+        <button class="ok-button" disabled="disabled">${player.translate("Validate")}</button>
+        <button class="quiz-next-button" style="display: none">${player.translate("Next")}</button>
+    </div>`);
+    const nextButton = buttons.getElementsByClassName('quiz-next-button')[0];
+    const okButton = buttons.getElementsByClassName('ok-button')[0];
+    const confirmationContainer = buttons.getElementsByClassName('confirmation-container')[0];
     switch (question.type) {
     case 'choice-question':
         question.responses.forEach((response,i) => {
@@ -47,7 +56,7 @@ function getQuestionElement(question,player,nextCallback) {
                     <label for="${id}">${response}</label>
                     <span class="quiz-question-response" id="${id}_response"></span>
                 </div>
-            `, elem);
+            `, elem).addEventListener('click', evt => okButton.removeAttribute("disabled"));
         });
         break;
     case 'multiple-choice-question':
@@ -60,6 +69,7 @@ function getQuestionElement(question,player,nextCallback) {
                     <span class="quiz-question-response" id="${id}_response"></span>
                 </div>
             `, elem);
+            okButton.removeAttribute("disabled");
         });
         break;
     case 'open-question':
@@ -67,7 +77,16 @@ function getQuestionElement(question,player,nextCallback) {
             <div>
                 <textarea id="quizPluginAnswerTextResult"></textarea>
             </div>
-        `, elem);
+        `, elem).addEventListener("keyup", evt => {
+            evt.stopPropagation();
+            if (evt.target.value !== "") {
+                okButton.removeAttribute("disabled");
+            }
+            else {
+                okButton.setAttribute("disabled","disabled");
+            }
+        });
+
         break;
     case 'likert-question':
         createElementWithHtmlText(`
@@ -78,21 +97,13 @@ function getQuestionElement(question,player,nextCallback) {
                     </div>
                 `).join("\n")}
             </div>
-        `, elem);
+        `, elem).addEventListener('click', evt => okButton.removeAttribute("disabled"));
         break;
     case 'message':
-        // TODO: implement this
+        okButton.removeAttribute("disabled");
         break;
     }
-    const buttons = createElementWithHtmlText(`
-        <div>
-            <div class="confirmation-container"></div>
-            <button class="ok-button">${player.translate("Validate")}</button>
-            <button class="quiz-next-button" style="display: none">${player.translate("Next")}</button>
-        </div>`, elem);
-    const nextButton = buttons.getElementsByClassName('quiz-next-button')[0];
-    const okButton = buttons.getElementsByClassName('ok-button')[0];
-    const confirmationContainer = buttons.getElementsByClassName('confirmation-container')[0];
+    elem.appendChild(buttons);
 
     okButton.addEventListener('click', evt => {
         const results = question.answers && question.answers.map((answer,i) => {
