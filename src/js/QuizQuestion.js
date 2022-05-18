@@ -1,7 +1,7 @@
 
 import { createElementWithHtmlText } from "paella-core";
 
-export class QuizQuestion {
+export default class QuizQuestion {
     constructor(questionnaire, { _id, answers, feedbacks, question, responses, type }) {
         this._typeId = type;
         this._questionnaire = questionnaire;
@@ -61,26 +61,11 @@ export class QuizQuestion {
     get element() {
         return this._element;
     }
-
-    Create(questionnaire, questionData) {
-        switch (questionData.type) {
-        case 'choice-question':
-            return ChoiceQuestion(questionnaire, questionData);
-        case 'multiple-choice-question':
-            return MultiChoiceQuestion(questionnaire, questionData);
-        case 'open-question':
-            return OpenQuestion(questionnaire, questionData);
-        case 'likert-question':
-            return new LikertQuestion(questionnaire, questionData);
-        case 'message':
-            return new MessageQuestion(questionnaire, questionData);
-        }
-    }
 }
 
 export class ChoiceQuestion extends QuizQuestion {
     constructor(questionnaire, questionData) {
-        super('choice-question', questionnaire, questionData);
+        super(questionnaire, questionData);
         this._valid = false;
         this._element = createElementWithHtmlText(`
             <div>
@@ -94,13 +79,15 @@ export class ChoiceQuestion extends QuizQuestion {
                     `
                 }).join('\n')}
             </div>
-        `).addEventListener('click', evt => {
-            this._valid = true;
-            if (typeof(evt.target._question?._onContentChanged) === "function") {
-                evt.target._question._onContentChanged()
-            }
+        `);
+        Array.from(this._element.getElementsByTagName('input')).forEach(input => {
+            input.addEventListener('click', evt => {
+                this._valid = true;
+                evt.target._question?._onContentChanged(this._question);
+                evt.stopPropagation();
+            });
+            input._question = this;
         });
-        this._element._question = this;
     }
 
     get isValidContent() {
@@ -110,7 +97,10 @@ export class ChoiceQuestion extends QuizQuestion {
 
 export class MultiChoiceQuestion extends QuizQuestion {
     constructor(questionnaire, questionData) {
-        super('multi-choice-question', questionnaire, questionData);
+        super(questionnaire, questionData);
+
+        this._element = createElementWithHtmlText(`
+        <div>${this.questionText}</div>`);
     }
 
     get isValidContent() {
@@ -120,7 +110,7 @@ export class MultiChoiceQuestion extends QuizQuestion {
 
 export class OpenQuestion extends QuizQuestion {
     constructor(questionnaire, questionData) {
-        super('open-question', questionnaire, questionData);
+        super(questionnaire, questionData);
     }
 
     get isValidContent() {
@@ -131,7 +121,7 @@ export class OpenQuestion extends QuizQuestion {
 
 export class LikertQuestion extends QuizQuestion {
     constructor(questionnaire, questionData) {
-        super('likert-question', questionnaire, questionData);
+        super(questionnaire, questionData);
     }
 
     get isValidContent() {
@@ -141,7 +131,7 @@ export class LikertQuestion extends QuizQuestion {
 
 export class MessageQuestion extends QuizQuestion {
     constructor(questionnaire, questionData) {
-        super('message', questionnaire, questionData);
+        super(questionnaire, questionData);
     }
 
     get isValidContent() {
@@ -149,3 +139,17 @@ export class MessageQuestion extends QuizQuestion {
     }
 }
 
+export const createQuizQuestion = (questionnaire, questionData) => {
+    switch (questionData.type) {
+    case 'choice-question':
+        return new ChoiceQuestion(questionnaire, questionData);
+    case 'multiple-choice-question':
+        return new MultiChoiceQuestion(questionnaire, questionData);
+    case 'open-question':
+        return new OpenQuestion(questionnaire, questionData);
+    case 'likert-question':
+        return new LikertQuestion(questionnaire, questionData);
+    case 'message':
+        return new MessageQuestion(questionnaire, questionData);
+    }
+}
