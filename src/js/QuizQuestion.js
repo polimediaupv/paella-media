@@ -2,7 +2,8 @@
 import { createElementWithHtmlText } from "paella-core";
 
 export default class QuizQuestion {
-    constructor(questionnaire, { _id, answers, feedbacks, question, responses, type }) {
+    constructor(player,questionnaire, { _id, answers, feedbacks, question, responses, type }) {
+        this._player = player;
         this._typeId = type;
         this._questionnaire = questionnaire;
         this._questionId = _id;
@@ -11,6 +12,10 @@ export default class QuizQuestion {
         this._question = question;
         this._responses = responses;
         this._element = null;
+    }
+
+    get player() {
+        return this._player;
     }
 
     get typeId() {
@@ -65,11 +70,19 @@ export default class QuizQuestion {
     get element() {
         return this._element;
     }
+
+    get requireFeedback() {
+        return true;
+    }
+
+    async sendResult() {
+        console.warn("Quiz question: send result not implemented");
+    }
 }
 
 export class ChoiceQuestion extends QuizQuestion {
-    constructor(questionnaire, questionData) {
-        super(questionnaire, questionData);
+    constructor(player,questionnaire, questionData) {
+        super(player,questionnaire, questionData);
         this._valid = false;
         this._element = createElementWithHtmlText(`
             <div>
@@ -132,8 +145,8 @@ export class ChoiceQuestion extends QuizQuestion {
 }
 
 export class MultiChoiceQuestion extends ChoiceQuestion {
-    constructor(questionnaire, questionData) {
-        super(questionnaire, questionData);
+    constructor(player,questionnaire, questionData) {
+        super(player,questionnaire, questionData);
         this._valid = true;
 
         this._element = createElementWithHtmlText(`
@@ -157,47 +170,99 @@ export class MultiChoiceQuestion extends ChoiceQuestion {
 }
 
 export class OpenQuestion extends QuizQuestion {
-    constructor(questionnaire, questionData) {
-        super(questionnaire, questionData);
+    constructor(player,questionnaire, questionData) {
+        super(player,questionnaire, questionData);
+        this._valid = false;
+        this._element = createElementWithHtmlText(`
+            <div>
+                ${this.questionText}
+                <textarea id="quizpluginanswerTextResult"></textarea>
+            </div>
+        `)
+        
+        this._element.addEventListener("keyup", evt => {
+            evt.stopPropagation();
+            this._valid = evt.target.value !== "";
+            this._onContentChanged && this._onContentChanged(this);
+        });
     }
 
     get isValidContent() {
-        // return true when the text input field is not empty
+        return this._valid;
+    }
+
+    async checkResult() {
+        return true;
+    }
+
+    get requireFeedback() {
         return false;
     }
 }
 
 export class LikertQuestion extends QuizQuestion {
-    constructor(questionnaire, questionData) {
-        super(questionnaire, questionData);
+    constructor(player,questionnaire, questionData) {
+        super(player,questionnaire, questionData);
+        this._valid = false;
+        this._element = createElementWithHtmlText(`
+            <div>
+                ${this.questionText}${
+                [0,1,2,3,4,5].map(index => `
+                <div>
+                    <input type="radio" name="likerAnswer" id="liker-answer-${index}"><label for="liker-answer-${index}">${this.player.translate('liker_answer_' + index)}</input>
+                </div>`).join("\n")
+            }</div>
+        `);
+
+        this._element.addEventListener('click', evt => {
+            this._valid = true;
+            this._onContentChanged && this._onContentChanged(this);
+        });
     }
 
     get isValidContent() {
-        // return true when an option is checked
+        return this._valid;
+    }
+
+    async checkResult() {
+        return true;
+    }
+
+    get requireFeedback() {
+        return false;
     }
 }
 
 export class MessageQuestion extends QuizQuestion {
-    constructor(questionnaire, questionData) {
-        super(questionnaire, questionData);
+    constructor(player,questionnaire, questionData) {
+        super(player,questionnaire, questionData);
+        this._element = createElementWithHtmlText(`
+            <div>
+                ${this.questionText}
+            </div>
+        `);
     }
 
     get isValidContent() {
         return true;
     }
+
+    get requireFeedback() {
+        return false;
+    }
 }
 
-export const createQuizQuestion = (questionnaire, questionData) => {
+export const createQuizQuestion = (player, questionnaire, questionData) => {
     switch (questionData.type) {
     case 'choice-question':
-        return new ChoiceQuestion(questionnaire, questionData);
+        return new ChoiceQuestion(player, questionnaire, questionData);
     case 'multiple-choice-question':
-        return new MultiChoiceQuestion(questionnaire, questionData);
+        return new MultiChoiceQuestion(player, questionnaire, questionData);
     case 'open-question':
-        return new OpenQuestion(questionnaire, questionData);
+        return new OpenQuestion(player, questionnaire, questionData);
     case 'likert-question':
-        return new LikertQuestion(questionnaire, questionData);
+        return new LikertQuestion(player, questionnaire, questionData);
     case 'message':
-        return new MessageQuestion(questionnaire, questionData);
+        return new MessageQuestion(player, questionnaire, questionData);
     }
 }

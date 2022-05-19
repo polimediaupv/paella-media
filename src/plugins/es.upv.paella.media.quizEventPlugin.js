@@ -42,7 +42,7 @@ function getQuestionElement(question,player,nextCallback) {
     const elem = createElementWithHtmlText(`<div></div>`);
     //createElementWithHtmlText(`${question.question}`,elem);
 
-    const quizQuestion = createQuizQuestion("qid", question);
+    const quizQuestion = createQuizQuestion(player, "qid", question);
     
     elem.appendChild(quizQuestion.element);
 
@@ -129,19 +129,24 @@ function getQuestionElement(question,player,nextCallback) {
     elem.appendChild(buttons);
 
     okButton.addEventListener('click', async evt => {
-        const result = await quizQuestion.checkResult();
+        
 
-        confirmationContainer.innerHTML = result ? player.translate("Correct!") : player.translate("Incorrect");
-        confirmationContainer.classList.add(result ? "correct-answer" : "wrong-answer");
+        if (quizQuestion.requireFeedback) {
+            const result = await quizQuestion.checkResult();
 
-        okButton.style.display = "none";
-        nextButton.style.display = "";
+            confirmationContainer.innerHTML = result ? player.translate("Correct!") : player.translate("Incorrect");
+            confirmationContainer.classList.add(result ? "correct-answer" : "wrong-answer");
+    
+            okButton.style.display = "none";
+            nextButton.style.display = "";
+            
+            await quizQuestion.sendResult();
+        }
+        else {
+            await quizQuestion.sendResult();
 
-    //     // Si no se requiere informar de nada al usuario, pasamos a la siguiente pregunta.
-    //     if (/(liker|message|open)/.test(question.type)) {
-    //         nextCallback();
-    //     }
-
+            nextCallback();
+        }
     });
 
     // okButton.addEventListener('click', evt => {
