@@ -49,6 +49,10 @@ export default class QuizQuestion {
         this._onContentChanged = fn;
     }
 
+    async checkResult() {
+
+    }
+
     get result() {
         // Return the result object
         return {
@@ -71,7 +75,7 @@ export class ChoiceQuestion extends QuizQuestion {
             <div>
                 ${this.questionText}
                 ${this.responses.map((response,i) => {
-                    const id = `choice_${i}`;
+                    const id = this.getChoiceId(i);
                     return `
                         <input type="radio" id="${id}" name="quizAnswers" />
                         <label for="${id}">${response}</label>
@@ -90,21 +94,65 @@ export class ChoiceQuestion extends QuizQuestion {
         });
     }
 
+    getChoiceId(index) {
+        return `choice_${index}`;
+    }
+
     get isValidContent() {
         return this._valid;
     }
+
+    async checkResult() {
+        const results = this.answers && this.answers.map((answer,i) => {
+            const element = document.getElementById(this.getChoiceId(i));
+            element.setAttribute('disabled','disabled');
+            return {
+                element,
+                hintElement: document.getElementById(`${this.getChoiceId(i)}_response`),
+                answer,
+                selection: element.checked,
+                response: this.feedbacks[i],
+                correct: element.checked === answer
+            }
+        });
+
+        return results
+            .map(r => {
+                if (r.correct) {
+                    r.hintElement.classList.add("correct-answer");
+                }
+                else {
+                    r.hintElement.classList.add("wrong-answer");
+                }
+                r.hintElement.innerHTML = r.response;
+                return r.correct;
+            })
+            .every(r => r === true);
+    }
 }
 
-export class MultiChoiceQuestion extends QuizQuestion {
+export class MultiChoiceQuestion extends ChoiceQuestion {
     constructor(questionnaire, questionData) {
         super(questionnaire, questionData);
+        this._valid = true;
 
         this._element = createElementWithHtmlText(`
-        <div>${this.questionText}</div>`);
+            <div>
+                ${this.questionText}
+                ${this.responses.map((response,i) => {
+                    const id = `check_${i}`;
+                    return `
+                        <input type="checkbox" id="${id}" name="quizAnswer${id}" />
+                        <label for="${id}">${response}</label>
+                        <span class="quiz-question-response" id="${id}_response"></span>
+                    `
+                }).join('\n')}
+            </div>
+        `);
     }
 
-    get isValidContent() {
-        return true;
+    getChoiceId(index) {
+        return `check_${index}`;
     }
 }
 

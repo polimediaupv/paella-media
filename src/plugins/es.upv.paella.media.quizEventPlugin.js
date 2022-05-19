@@ -49,7 +49,7 @@ function getQuestionElement(question,player,nextCallback) {
     const buttons = createElementWithHtmlText(`
     <div>
         <div class="confirmation-container"></div>
-        <button class="ok-button" disabled="disabled">${player.translate("Validate")}</button>
+        <button class="ok-button">${player.translate("Validate")}</button>
         <button class="quiz-next-button" style="display: none">${player.translate("Next")}</button>
     </div>`);
     const nextButton = buttons.getElementsByClassName('quiz-next-button')[0];
@@ -127,6 +127,22 @@ function getQuestionElement(question,player,nextCallback) {
     //     break;
     // }
     elem.appendChild(buttons);
+
+    okButton.addEventListener('click', async evt => {
+        const result = await quizQuestion.checkResult();
+
+        confirmationContainer.innerHTML = result ? player.translate("Correct!") : player.translate("Incorrect");
+        confirmationContainer.classList.add(result ? "correct-answer" : "wrong-answer");
+
+        okButton.style.display = "none";
+        nextButton.style.display = "";
+
+    //     // Si no se requiere informar de nada al usuario, pasamos a la siguiente pregunta.
+    //     if (/(liker|message|open)/.test(question.type)) {
+    //         nextCallback();
+    //     }
+
+    });
 
     // okButton.addEventListener('click', evt => {
     //     const results = question.answers && question.answers.map((answer,i) => {
