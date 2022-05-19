@@ -58,12 +58,16 @@ export default class QuizQuestion {
 
     }
 
+    get response() {
+        console.warn("Quiz element: response not implemented");
+        return null;
+    }
+
     get result() {
-        // Return the result object
         return {
-            questionId: "",
-            questionnaire: "",
-            response: null
+            questionId: this._questionId,
+            questionnaire: this._questionnaire,
+            response: this.response
         }
     }
 
@@ -76,7 +80,10 @@ export default class QuizQuestion {
     }
 
     async sendResult() {
+        const result = this.result;
+
         console.warn("Quiz question: send result not implemented");
+        console.log(result);
     }
 }
 
@@ -142,6 +149,12 @@ export class ChoiceQuestion extends QuizQuestion {
             })
             .every(r => r === true);
     }
+
+    get response() {
+        return this.answers && this.answers.map((answer,i) => {
+            return document.getElementById(this.getChoiceId(i)).checked;
+        }).indexOf(true);
+    }
 }
 
 export class MultiChoiceQuestion extends ChoiceQuestion {
@@ -166,6 +179,13 @@ export class MultiChoiceQuestion extends ChoiceQuestion {
 
     getChoiceId(index) {
         return `check_${index}`;
+    }
+
+    get response() {
+        return this.answers && this.answers.map((answer,i) => {
+                return document.getElementById(this.getChoiceId(i)).checked ? i : -1;
+            })
+            .filter((value) => value!==-1);
     }
 }
 
@@ -197,6 +217,10 @@ export class OpenQuestion extends QuizQuestion {
 
     get requireFeedback() {
         return false;
+    }
+
+    get response() {
+        return document.getElementById('quizpluginanswerTextResult').value;
     }
 }
 
@@ -231,6 +255,14 @@ export class LikertQuestion extends QuizQuestion {
     get requireFeedback() {
         return false;
     }
+
+    get response() {
+        return [0,1,2,3,4,5].filter((i) => {
+            if (document.getElementById(`liker-answer-${i}`).checked) {
+                return true;
+            }
+        })[0];
+    }
 }
 
 export class MessageQuestion extends QuizQuestion {
@@ -249,6 +281,10 @@ export class MessageQuestion extends QuizQuestion {
 
     get requireFeedback() {
         return false;
+    }
+
+    get response() {
+        return null;
     }
 }
 

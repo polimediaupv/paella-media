@@ -38,20 +38,17 @@ import '../css/QuizEventPlugin.css';
  *          response (null)
  */
 
-function getQuestionElement(question,player,nextCallback) {
+function getQuestionElement(quizId,question,player,nextCallback) {
     const elem = createElementWithHtmlText(`<div></div>`);
-    //createElementWithHtmlText(`${question.question}`,elem);
-
-    const quizQuestion = createQuizQuestion(player, "qid", question);
-    
+    const quizQuestion = createQuizQuestion(player, quizId, question);
     elem.appendChild(quizQuestion.element);
 
     const buttons = createElementWithHtmlText(`
-    <div>
-        <div class="confirmation-container"></div>
-        <button class="ok-button">${player.translate("Validate")}</button>
-        <button class="quiz-next-button" style="display: none">${player.translate("Next")}</button>
-    </div>`);
+        <div>
+            <div class="confirmation-container"></div>
+            <button class="ok-button">${player.translate("Validate")}</button>
+            <button class="quiz-next-button" style="display: none">${player.translate("Next")}</button>
+        </div>`);
     const nextButton = buttons.getElementsByClassName('quiz-next-button')[0];
     const okButton = buttons.getElementsByClassName('ok-button')[0];
     const confirmationContainer = buttons.getElementsByClassName('confirmation-container')[0];
@@ -67,70 +64,11 @@ function getQuestionElement(question,player,nextCallback) {
             okButton.removeAttribute("disabled");
         }
         console.log("Content changed");
-    })
-    
-    // switch (question.type) {
-    // case 'choice-question':
-    //     question.responses.forEach((response,i) => {
-    //         const id = `choice_${i}`;
-    //         createElementWithHtmlText(`
-    //             <div>
-    //                 <input type="radio" id="${id}" name="quizAnswers"/>
-    //                 <label for="${id}">${response}</label>
-    //                 <span class="quiz-question-response" id="${id}_response"></span>
-    //             </div>
-    //         `, elem).addEventListener('click', evt => okButton.removeAttribute("disabled"));
-    //     });
-    //     break;
-    // case 'multiple-choice-question':
-    //     question.responses.forEach((response,i) => {
-    //         const id = `check_${i}`;
-    //         createElementWithHtmlText(`
-    //             <div>
-    //                 <input type="checkbox" id="${id}" name="quizAnswer${id}"/>
-    //                 <label for="${id}">${response}</label>
-    //                 <span class="quiz-question-response" id="${id}_response"></span>
-    //             </div>
-    //         `, elem);
-    //         okButton.removeAttribute("disabled");
-    //     });
-    //     break;
-    // case 'open-question':
-    //     createElementWithHtmlText(`
-    //         <div>
-    //             <textarea id="quizPluginAnswerTextResult"></textarea>
-    //         </div>
-    //     `, elem).addEventListener("keyup", evt => {
-    //         evt.stopPropagation();
-    //         if (evt.target.value !== "") {
-    //             okButton.removeAttribute("disabled");
-    //         }
-    //         else {
-    //             okButton.setAttribute("disabled","disabled");
-    //         }
-    //     });
+    });
 
-    //     break;
-    // case 'likert-question':
-    //     createElementWithHtmlText(`
-    //         <div class="likert-question-group">
-    //             ${[0,1,2,3,4,5].map(index => `
-    //                 <div class="liker-question">
-    //                     <input type="radio" name="likerAnswer" id="liker-answer-${index}"><label for="liker-answer-${index}">${player.translate('liker_answer_' + index)}</input>
-    //                 </div>
-    //             `).join("\n")}
-    //         </div>
-    //     `, elem).addEventListener('click', evt => okButton.removeAttribute("disabled"));
-    //     break;
-    // case 'message':
-    //     okButton.removeAttribute("disabled");
-    //     break;
-    // }
     elem.appendChild(buttons);
 
     okButton.addEventListener('click', async evt => {
-        
-
         if (quizQuestion.requireFeedback) {
             const result = await quizQuestion.checkResult();
 
@@ -148,100 +86,10 @@ function getQuestionElement(question,player,nextCallback) {
             nextCallback();
         }
     });
-
-    // okButton.addEventListener('click', evt => {
-    //     const results = question.answers && question.answers.map((answer,i) => {
-    //         switch (question.type) {
-    //         case 'choice-question': {
-    //             const element = document.getElementById(`choice_${i}`);
-    //             const checked = element.checked;
-    //             element.setAttribute('disabled','disabled');
-    //             return {
-    //                 element,
-    //                 hintElement: document.getElementById(`choice_${i}_response`),
-    //                 answer: answer,
-    //                 selection: checked,
-    //                 response: question.feedbacks[i],
-    //                 correct: answer === checked
-    //             }
-    //         }
-    //         case 'multiple-choice-question': {
-    //             const element = document.getElementById(`check_${i}`);
-    //             const checked = element.checked;
-    //             element.setAttribute('disabled','disabled');
-    //             return {
-    //                 element,
-    //                 hintElement: document.getElementById(`check_${i}_response`),
-    //                 answer: answer,
-    //                 selection: checked,
-    //                 response: question.feedbacks[i],
-    //                 correct: answer === checked
-    //             }
-    //         }
-    //         }
-    //     }) || null;
-
-    //     if (results) {
-    //         // choice or multi choice
-    //         let totalFailed = 0;
-    //         const finalResult = results
-    //             .map(r => {
-    //                 if (r.correct) {
-    //                     r.hintElement.classList.add("correct-answer");
-    //                 }
-    //                 else {
-    //                     r.hintElement.classList.add("wrong-answer");
-    //                 }
-    //                 r.hintElement.innerHTML = r.response;
-    //                 return r.correct;
-    //             })
-    //             .every(r => {
-    //                 if (r === true) {
-    //                     return true;
-    //                 }
-    //                 else {
-    //                     ++totalFailed;
-    //                     return false;
-    //                 }
-    //             });
-
-    //         confirmationContainer.innerHTML = finalResult ? player.translate("Correct!") : player.translate("Incorrect");
-    //         confirmationContainer.classList.add(finalResult ? "correct-answer" : "wrong-answer");
-
-    //         // TODO: send response
-    //     }
-    //     else {
-
-    //         // Other types
-    //         switch (question.type) {
-    //             case 'open-question': {
-    //                 const textElem = document.getElementById('quizPluginAnswerTextResult');
-    //                 console.log(textElem.value);
-    //                 // TODO: What may I do with the answer?
-    //             }
-    //             case 'likert-question': {
-    //                 // TODO: implement this
-    //             }
-    //             case 'message': {
-    //                 // TODO: send response
-    //             }
-    //         }
-    //     }
-
-
-        
-    //     okButton.style.display = "none";
-    //     nextButton.style.display = "";
-
-    //     // Si no se requiere informar de nada al usuario, pasamos a la siguiente pregunta.
-    //     if (/(liker|message|open)/.test(question.type)) {
-    //         nextCallback();
-    //     }
-    // });
     return elem;
 }
 
-function getQuestionContainer(question, doneCallback, player) {
+function getQuestionContainer(quizId, question, doneCallback, player) {
     const questionContainer = createElementWithHtmlText(`
         <div class="question-container">
         </div>
@@ -251,7 +99,7 @@ function getQuestionContainer(question, doneCallback, player) {
     });
 
     const quizzes = question.quizzes.map(q => {
-        const elem = getQuestionElement(q, player, () => questionContainer._data.nextQuestion());
+        const elem = getQuestionElement(quizId, q, player, () => questionContainer._data.nextQuestion());
 
         const nextButton = elem.getElementsByClassName('quiz-next-button')[0];
         nextButton.addEventListener('click', evt => {
@@ -327,7 +175,7 @@ export default class QuizEventPlugin extends EventLogPlugin {
         }
 
         this._questionModal = new PopUp(this.player, document.body, null, null, true);
-        const questionContainer = getQuestionContainer(question, () => {
+        const questionContainer = getQuestionContainer(this._quiz._id, question, () => {
             this.hideQuestion();
         }, this.player);
         this._questionModal.setContent(questionContainer);
