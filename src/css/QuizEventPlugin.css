@@ -11,6 +11,45 @@
     pointer-events: all;
 }
 
+.quiz-question {
+    width: 90%;
+    height: 90%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 5%;
+    margin-bottom: 15px;
+    font-family: sans-serif;
+    overflow: auto;
+}
+
+.quiz-question .quiz-question-item {
+    margin-bottom: 5px;
+}
+
+.quiz-question .choice-item {
+    padding-left: 12px;
+}
+
+.quiz-question textarea {
+    width: 100%;
+    min-height: 90px;
+}
+
+.quiz-question .buttons-container {
+    padding-bottom: 20px;
+}
+
+.quiz-question .buttons-container .confirmation-container {
+    padding: 10px;
+}
+
+.quiz-question .choice-item span {
+    display: block;
+    padding-left: 27px;
+    padding-bottom: 8px;
+    padding-top: 5px;
+}
+
 .wrong-answer {
     color: red;
 }

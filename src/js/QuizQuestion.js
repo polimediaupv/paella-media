@@ -81,9 +81,18 @@ export default class QuizQuestion {
 
     async sendResult() {
         const result = this.result;
-
-        console.warn("Quiz question: send result not implemented");
-        console.log(result);
+        const url = `/rest/plugins/user-administrator/quiz/${this.questionnaire}/addResponse?preview=true`;
+        const response = await fetch(url, {
+            method: 'PUT',
+            body: JSON.stringify(result)
+        });
+        if (!response.ok) {
+            console.warn("Error: quiz result not sent");
+        }
+        else {
+            console.log("Quiz answer sent");
+            console.log(result);
+        }
     }
 }
 
@@ -92,14 +101,16 @@ export class ChoiceQuestion extends QuizQuestion {
         super(player,questionnaire, questionData);
         this._valid = false;
         this._element = createElementWithHtmlText(`
-            <div>
+            <div class="quiz-question-item">
                 ${this.questionText}
                 ${this.responses.map((response,i) => {
                     const id = this.getChoiceId(i);
                     return `
-                        <input type="radio" id="${id}" name="quizAnswers" />
-                        <label for="${id}">${response}</label>
-                        <span class="quiz-question-response" id="${id}_response"></span>
+                        <div class="choice-item">
+                            <input type="radio" id="${id}" name="quizAnswers" />
+                            <label for="${id}">${response}</label>
+                            <span class="quiz-question-response" id="${id}_response"></span>
+                        </div>
                     `
                 }).join('\n')}
             </div>
@@ -168,9 +179,11 @@ export class MultiChoiceQuestion extends ChoiceQuestion {
                 ${this.responses.map((response,i) => {
                     const id = `check_${i}`;
                     return `
-                        <input type="checkbox" id="${id}" name="quizAnswer${id}" />
-                        <label for="${id}">${response}</label>
-                        <span class="quiz-question-response" id="${id}_response"></span>
+                        <div class="choice-item">
+                            <input type="checkbox" id="${id}" name="quizAnswer${id}" />
+                            <label for="${id}">${response}</label>
+                            <span class="quiz-question-response" id="${id}_response"></span>
+                        </div>
                     `
                 }).join('\n')}
             </div>
@@ -232,7 +245,7 @@ export class LikertQuestion extends QuizQuestion {
             <div>
                 ${this.questionText}${
                 [0,1,2,3,4,5].map(index => `
-                <div>
+                <div class="choice-item">
                     <input type="radio" name="likerAnswer" id="liker-answer-${index}"><label for="liker-answer-${index}">${this.player.translate('liker_answer_' + index)}</input>
                 </div>`).join("\n")
             }</div>

@@ -6,45 +6,13 @@ import { Events, EventLogPlugin, PopUp, createElementWithHtmlText } from 'paella
 
 import '../css/QuizEventPlugin.css';
 
-/**
- * PUT /rest/plugins/user-administrator/quiz/${id}/addResponse?preview=true
- * 
- *  choice-question  
- *          questionId (question Id)
- *          questionnaire (quiz id)
- *          response (response index, 0..n) 
- * 
- *  multi-choice-question  
- *          questionId (question Id)
- *          questionnaire (quiz id)
- *          response array (response index, 0..n) 
- *              Examples: first and secon options => [0, 1]
- *                        first and third options => [0, 2]
- *                        second option => [1]
- *   
- *  open-question  
- *          questionId (question Id)
- *          questionnaire (quiz id)
- *          response response string
- * 
- *  likert-question  
- *          questionId (question Id)
- *          questionnaire (quiz id)
- *          response (response index, 0..n)  
- * 
- *  message
- *          questionId (question Id)
- *          questionnaire (quiz id)
- *          response (null)
- */
-
 function getQuestionElement(quizId,question,player,nextCallback) {
-    const elem = createElementWithHtmlText(`<div></div>`);
+    const elem = createElementWithHtmlText(`<div class="quiz-question"></div>`);
     const quizQuestion = createQuizQuestion(player, quizId, question);
     elem.appendChild(quizQuestion.element);
 
     const buttons = createElementWithHtmlText(`
-        <div>
+        <div class="buttons-container">
             <div class="confirmation-container"></div>
             <button class="ok-button">${player.translate("Validate")}</button>
             <button class="quiz-next-button" style="display: none">${player.translate("Next")}</button>
