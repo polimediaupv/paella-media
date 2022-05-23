@@ -98,6 +98,7 @@ function getQuestionContainer(quizId, question, doneCallback, player) {
 
 export default class QuizEventPlugin extends EventLogPlugin {
     async load() {
+        this._discoveredTime = 0;
         this._quiz = null;
         this._playAllowed = true;
         this.player.addDictionary("en", {
@@ -163,8 +164,21 @@ export default class QuizEventPlugin extends EventLogPlugin {
     }
 
     async onEvent(event, params) {
+        if (this.quizEnabled === false) {
+            return;
+        }
+
         if (event === Events.PLAYER_LOADED) {
             this._quiz = await this.player.data.read('quiz', { id: this.player.videoId });
+            
+            if (this.player.authData.permissions.isAnonymous && this._quiz.dontAllowAnonymousAnswers) {
+                this.quizEnabled = false;
+            }
+            else {
+                this.quizEnabled = true;
+            }
+
+            this.dontAllowSeek = this._quiz.dontAllowSeek;
         }
         else if (event === Events.TIMEUPDATE) {
             await this.timeUpdate(await this.player.videoContainer.currentTime());
@@ -175,6 +189,18 @@ export default class QuizEventPlugin extends EventLogPlugin {
             }
         }
         else if (event === Events.SEEK) {
+            // dontAllowSeek control
+            // Prevent recursion loop (see explanation in second else..if)
+            if (this._skipEvent) {
+                this._skipEvent = false
+            }
+            else if (this.dontAllowSeek && params.newTime>this._discoveredTime) {
+                // The following call to setCurrentTime API will generate a seek event, we need to ignore it to avoid a recursion loop
+                this._skipEvent = true;
+                await this.player.videoContainer.setCurrentTime(params.prevTime);
+            }
+            
+            // dont allow play if a quiestion is active
             if (!this._playAllowed && !this._seeking) {
                 this._seeking = true;
                 await this.player.videoContainer.setCurrentTime(this._currentTime);
@@ -186,6 +212,7 @@ export default class QuizEventPlugin extends EventLogPlugin {
     }
 
     async timeUpdate(time) {
+        this._discoveredTime = time>this._discoveredTime ? time : this._discoveredTime;
         const roundedTime = Math.round(time);
         const question = this._quiz?.quizTimes?.find(q => q.time === roundedTime && q.time !== this._skipTime);
         if (question) {
