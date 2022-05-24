@@ -190,7 +190,7 @@ export default class QuizEventPlugin extends EventLogPlugin {
         }
         else if (event === Events.SEEK) {
             // dontAllowSeek control
-            // Prevent recursion loop (see explanation in second else..if)
+            // Prevent recursion loop (see explanation in the next else..if)
             if (this._skipEvent) {
                 this._skipEvent = false
             }

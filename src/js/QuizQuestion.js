@@ -84,6 +84,9 @@ export default class QuizQuestion {
         const url = `/rest/plugins/user-administrator/quiz/${this.questionnaire}/addResponse?preview=true`;
         const response = await fetch(url, {
             method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify(result)
         });
         if (!response.ok) {
