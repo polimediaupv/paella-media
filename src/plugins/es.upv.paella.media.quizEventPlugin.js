@@ -31,7 +31,6 @@ function getQuestionElement(quizId,question,player,nextCallback) {
         else {
             okButton.removeAttribute("disabled");
         }
-        console.log("Content changed");
     });
 
     elem.appendChild(buttons);

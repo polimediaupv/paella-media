@@ -59,7 +59,7 @@ export default class QuizQuestion {
     }
 
     get response() {
-        console.warn("Quiz element: response not implemented");
+        this.player.log.warn("Quiz element: response not implemented");
         return null;
     }
 
@@ -90,11 +90,11 @@ export default class QuizQuestion {
             body: JSON.stringify(result)
         });
         if (!response.ok) {
-            console.warn("Error: quiz result not sent");
+            this.player.log.warn("Error: quiz result not sent");
         }
         else {
-            console.log("Quiz answer sent");
-            console.log(result);
+            this.player.log.debug("Quiz answer sent");
+            this.player.log.debug(result);
         }
     }
 }
